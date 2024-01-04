@@ -44,11 +44,29 @@ const List = ({ navigation }) => {
 }
 
 const theme = StyleSheet.create({
-    safeArea: { flex: 1 },
-    container: { flex: 1, flexDirection: 'column', alignItems: 'center', backgroundColor: '#edf6f9' },
-    panel: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    button: { position: 'absolute', bottom: 70, left: Dimensions.get('window').width / 2 - 110 },
-    colors: { black: '#000', white: 'white' },
+    safeArea: { 
+        flex: 1 
+    },
+    container: { 
+        flex: 1, 
+        flexDirection: 'column', 
+        alignItems: 'center', 
+        backgroundColor: '#edf6f9' 
+    },
+    panel: { 
+        flex: 1, 
+        justifyContent: 'center', 
+        alignItems: 'center' 
+    },
+    button: { 
+        position: 'absolute', 
+        bottom: 70, 
+        left: Dimensions.get('window').width / 2 - 110 
+    },
+    colors: { 
+        black: '#000', 
+        white: 'white' 
+    },
 
 });
 

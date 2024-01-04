@@ -170,9 +170,28 @@ const theme = StyleSheet.create({
     flexDirection: "row",
     marginLeft: 30,
   },
-  container: { flex: 1, flexDirection: 'row', paddingHorizontal: 20, marginBottom: 5, paddingBottom: 10, padding: 5, borderRadius: 10 },
-  section: { flexDirection: "row", alignItems: "center" },
-  title: { fontSize: 32, textAlign: 'center' },
-  switch: { marginLeft: 10 },
-  image: { width: 20, height: 20, marginLeft: 10}
+  container: { flex: 1, 
+    flexDirection: 'row', 
+    paddingHorizontal: 20, 
+    marginBottom: 5, 
+    paddingBottom: 10, 
+    padding: 5, 
+    borderRadius: 10 
+  },
+  section: { 
+    flexDirection: "row", 
+    alignItems: "center" 
+  },
+  title: { 
+    fontSize: 32, 
+    textAlign: 'center' 
+  },
+  switch: { 
+    marginLeft: 10 
+  },
+  image: { 
+    width: 20, 
+    height: 20, 
+    marginLeft: 10
+  }
 });

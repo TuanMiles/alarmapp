@@ -8,6 +8,7 @@ import { Database } from "./api/Database";
 import Icon from 'react-native-vector-icons/FontAwesome'; // Import Icon component
 import { useNavigation } from '@react-navigation/native';
 import SleepAnalytics from './src/screens/SleepAnalytics';
+import GettingStartedScreen from './src/screens/GettingStarted';
 
 const Stack = createNativeStackNavigator();
 LogBox.ignoreAllLogs();
@@ -19,7 +20,12 @@ const App = () => {
   const isDarkMode = useColorScheme() === 'dark'
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="main">
+      <Stack.Navigator initialRouteName="GettingStarted">
+        <Stack.Screen 
+          name="GettingStarted" // Tên màn hình "GettingStarted"
+          component={GettingStartedScreen} // Component cho màn hình "GettingStarted"
+          options={{ headerShown: false }} // Ẩn header của màn hình này nếu cần thiết
+        />
         <Stack.Screen 
           name="main" 
           component={List} 
