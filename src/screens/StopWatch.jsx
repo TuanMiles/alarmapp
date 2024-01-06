@@ -1,11 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import Home from '../components/Home';
 
-const SleepAnalytics = () => {
+const StopWatch = () => {
   return (
-    <View style={styles.container}>
-      <Text>Sleep Analytics Screen</Text>
-    </View>
+    <Home></Home>
   );
 }
 
@@ -17,4 +16,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SleepAnalytics;
+export default StopWatch;

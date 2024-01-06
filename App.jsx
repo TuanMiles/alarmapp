@@ -6,9 +6,9 @@ import List from './src/screens/List';
 import AlarmCreator from './src/screens/AlarmCreator';
 import { Database } from "./api/Database";
 import Icon from 'react-native-vector-icons/FontAwesome'; // Import Icon component
-import { useNavigation } from '@react-navigation/native';
-import SleepAnalytics from './src/screens/SleepAnalytics';
 import GettingStartedScreen from './src/screens/GettingStarted';
+import StopWatch from './src/screens/StopWatch';
+import TimerWatch from './src/screens/TimerWatch';
 
 const Stack = createNativeStackNavigator();
 LogBox.ignoreAllLogs();
@@ -33,18 +33,11 @@ const App = () => {
             title: 'Your next wake up', 
             headerStyle: { backgroundColor: '#f1f1f1' }, 
             headerTintColor: '#83c5be',
-            headerRight: () => (
-            
-              <TouchableOpacity style={styles.headerRightButton}>
-                <Text style={styles.headerRightButtonText}>Your sleep</Text>
-                <Icon name="search" size={20} color="#83c5be" style={styles.glass}/>
-             
-              </TouchableOpacity>
-            ),
           }} 
         />
         <Stack.Screen name="creator" component={AlarmCreator} options={{ title: 'Add new alarm', headerStyle: { backgroundColor: '#f1f1f1' }, headerTintColor: '#83c5be', }} />
-        <Stack.Screen name="sleepAnalytics"  component={SleepAnalytics} options={{ title: 'Sleep Analytics' }} />
+        <Stack.Screen name="stopwatch"  component={StopWatch} options={{ title: 'Stop Watch' }} />
+        <Stack.Screen name="timer"  component={TimerWatch} options={{ title: 'Timer' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -1,4 +1,4 @@
-import { View, Text, Switch, Image, StyleSheet, Animated, TouchableOpacity, Dimensions, Vibration } from 'react-native';
+import { View, Text, Switch, Image, StyleSheet, Animated, TouchableOpacity, Dimensions, Vibration, Alert } from 'react-native';
 import React, { useState, useEffect, useRef } from 'react';
 import { formatNumber } from '../../api/Utils';
 import DaySelector from './DaySelector';
@@ -6,9 +6,8 @@ import { colors } from '../../api/ColorPallete';
 import { Audio } from 'expo-av';
 
 const AlarmClock = ({ id, hour, minute, active, remove }) => {
-  const [isVibration, setIsVibration] = useState(true); // Set vibration on by default
+  const [isVibration, setIsVibration] = useState(true);
   const [isMusic, setIsMusic] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
 
   const screenHeight = Dimensions.get("window").height;
   const expansionHeight = useRef(new Animated.Value(screenHeight / 8)).current;
@@ -18,6 +17,8 @@ const AlarmClock = ({ id, hour, minute, active, remove }) => {
 
   const [sound, setSound] = useState();
   let audioPlaying = false;
+  let vibrationPlaying = false;
+  const [stopped, setStopped] = useState(false);
 
   const selectDaySelector = (id, name) => {
     setSelectedDays(prevState => [...prevState, { id, name }]);
@@ -30,9 +31,14 @@ const AlarmClock = ({ id, hour, minute, active, remove }) => {
   const checkAlarm = () => {
     const currentHour = new Date().getHours();
     const currentMinute = new Date().getMinutes();
+    console.log('see')
+    console.log(currentHour, currentMinute)
+    console.log(hour, minute)
 
-    if (currentHour === hour && currentMinute === minute) {
-      if (isVibration) {
+    if (currentHour == hour && currentMinute == minute) {
+      console.log('match')
+     
+      if (isVibration && !vibrationPlaying) {
         const pattern = [0.5 * 1000, 1 * 1000, 0.5 * 1000];
         Vibration.vibrate(pattern, true);
       }
@@ -41,12 +47,12 @@ const AlarmClock = ({ id, hour, minute, active, remove }) => {
         playSound();
       }
     }
+    else {
+      console.log('no match')
+    }
   };
 
-  useEffect(() => {
-    const interval = setInterval(checkAlarm, 60000); // Check every minute
-    return () => clearInterval(interval);
-  }, [isMusic, isVibration, hour, minute]);
+
 
   const toggleMusic = () => {
     setIsMusic(!isMusic);
@@ -55,8 +61,19 @@ const AlarmClock = ({ id, hour, minute, active, remove }) => {
     }
   };
 
+  const currentHour = new Date().getHours();
+  const currentMinute = new Date().getMinutes();
+  console.log(currentHour, currentMinute)
+
+  useEffect(() => {
+    if (!stopped){
+    const interval = setInterval(checkAlarm, 7000);
+    return () => clearInterval(interval);
+    }
+  }, [isMusic, isVibration, hour, minute]);
+
   const playSound = async () => {
-    if (!audioPlaying) {
+    if (!audioPlaying && !stopped) {
       audioPlaying = true;
       console.log('Loading Sound');
       const { sound } = await Audio.Sound.createAsync(require('../../assets/alarmsound.mp3'));
@@ -65,7 +82,32 @@ const AlarmClock = ({ id, hour, minute, active, remove }) => {
       console.log('Playing Sound');
       await sound.playAsync();
     }
+    if (!stopped) {
+      Alert.alert(
+        'Alarm',
+        'Wake up!',
+        [
+          {
+            text: 'Snooze',
+            onPress: () => {
+              setStopped(true);
+              console.log(stopped);
+              stopVibrationAndSound();
+              vibrationPlaying = true;
+            },
+          },
+          {
+            text: 'Dismiss',
+            style: 'cancel', 
+          },
+        ],
+        { cancelable: false }
+      );
+    }
+
+ 
   };
+
 
   const stopSound = async () => {
     if (sound) {
@@ -75,61 +117,45 @@ const AlarmClock = ({ id, hour, minute, active, remove }) => {
     }
   };
 
-  const toggle = () => {
-    if (!isExpanded) {
-      expand();
-    } else {
-      roll();
-    }
+  const stopVibrationAndSound = () => {
+    Vibration.cancel();
+    stopSound();
   };
 
-  const expand = () => {
-    Animated.timing(expansionHeight, {
-      toValue: screenHeight / 5.5,
-      duration: 800,
-      useNativeDriver: false,
-    }).start();
-    setTimeout(() => setIsExpanded(true), 500);
-  };
+  useEffect(() => {
+      stopVibrationAndSound();
+  }, [stopped, active]);
 
-  const roll = () => {
-    setIsExpanded(false);
-    Animated.timing(expansionHeight, {
-      toValue: screenHeight / 8,
-      duration: 800,
-      useNativeDriver: false,
-    }).start();
-  };
+
 
   return (
     <Animated.View style={[theme.bigContainer, { height: expansionHeight, backgroundColor: colors.panelw }]}>
       <View style={[theme.container]}>
-      <View style={theme.section}>
-        <Text style={theme.title}>{`${formatNumber(hour)}:${formatNumber(minute)}`}</Text>
-        <Switch style={theme.switch} trackColor={{ false: colors.black60, true: colors.black60 }} thumbColor={isMusic ? "#303030" : "#f4f3f4"} onValueChange={toggleMusic} value={isMusic} />
-      </View>
-      <View style={[theme.section, { justifyContent: 'flex-end', marginLeft: 120 }]}>
-        {isMusic && (
-          <Image
-            style={{ width: 16, height: 16, marginHorizontal: 5, marginLeft: -21 }}
-            source={{ uri: 'https://static.vecteezy.com/system/resources/previews/001/200/758/original/music-note-png.png' }}
-          />
-        )}
-        {/* <TouchableOpacity onPress={toggle} >
-          <Image style={theme.image} source={isExpanded ? require('../../assets/expand-button-up.png') : require('../../assets/expand-button-down.png')} />
-        </TouchableOpacity> */}
-        <TouchableOpacity onPress={() => remove(id)} style={theme.removeButton} >
-          <Image 
-            style={theme.removeImage} 
-            source={require('../../assets/remove-black.png')} 
-          />
-        </TouchableOpacity>
-      </View>
+        <View style={theme.section}>
+          <Text style={theme.title}>{`${formatNumber(hour)}:${formatNumber(minute)}`}</Text>
+          <Switch style={theme.switch} trackColor={{ false: colors.black60, true: colors.black60 }} thumbColor={isMusic ? "#303030" : "#f4f3f4"} onValueChange={toggleMusic} value={isMusic} />
+        </View>
+        <View style={[theme.section, { justifyContent: 'flex-end', marginLeft: 120 }]}>
+          {isMusic && (
+            <Image
+              style={{ width: 16, height: 16, marginHorizontal: 5, marginLeft: -21 }}
+              source={{ uri: 'https://static.vecteezy.com/system/resources/previews/001/200/758/original/music-note-png.png' }}
+            />
+          )}
+          <TouchableOpacity onPress={() => remove(id)} style={theme.removeButton} >
+            <Image
+              style={theme.removeImage}
+              source={require('../../assets/remove-black.png')}
+            />
+          </TouchableOpacity>
+        </View>
       </View>
       <View style={theme.chooseDay}>
         {days.map(day => <DaySelector key={day.id} id={day.id} name={day.name.substring(0, 3)} selectedArr={selectedDays} selectDaySelector={selectDaySelector} removeDaySelector={removeDaySelector} />)}
       </View>
+
     </Animated.View>
+
   );
 };
 
@@ -145,7 +171,7 @@ const theme = StyleSheet.create({
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
-      height: 4, 
+      height: 4,
     },
     shadowRadius: 6,
     shadowOpacity: 0.1,
@@ -170,28 +196,29 @@ const theme = StyleSheet.create({
     flexDirection: "row",
     marginLeft: 30,
   },
-  container: { flex: 1, 
-    flexDirection: 'row', 
-    paddingHorizontal: 20, 
-    marginBottom: 5, 
-    paddingBottom: 10, 
-    padding: 5, 
-    borderRadius: 10 
+  container: {
+    flex: 1,
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+    marginBottom: 5,
+    paddingBottom: 10,
+    padding: 5,
+    borderRadius: 10
   },
-  section: { 
-    flexDirection: "row", 
-    alignItems: "center" 
+  section: {
+    flexDirection: "row",
+    alignItems: "center"
   },
-  title: { 
-    fontSize: 32, 
-    textAlign: 'center' 
+  title: {
+    fontSize: 32,
+    textAlign: 'center'
   },
-  switch: { 
-    marginLeft: 10 
+  switch: {
+    marginLeft: 10
   },
-  image: { 
-    width: 20, 
-    height: 20, 
+  image: {
+    width: 20,
+    height: 20,
     marginLeft: 10
   }
 });

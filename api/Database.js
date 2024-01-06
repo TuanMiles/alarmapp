@@ -6,20 +6,16 @@ const tableName = 'table3'
 export class Database {
 
     static createTable = () => db.transaction(tx =>
-        tx.executeSql(`CREATE TABLE IF NOT EXISTS ${tableName} (id integer prrimary key not null, hour text, minute text, active INTEGER);`));
+        tx.executeSql(`CREATE TABLE IF NOT EXISTS ${tableName} (id integer primary key not null, hour text, minute text, active INTEGER);`));
 
     static add = (hour, minute, active) => db.transaction(tx => tx.executeSql(`INSERT INTO ${tableName} (hour, minute, active) values (${hour},${minute},${active})`));
 
     static getAll = () => {
         var query = `SELECT * FROM ${tableName};`;
-
         return new Promise((resolve, reject) => db.transaction((tx) => {
             tx.executeSql(query, [], (tx, results) => {
-
                 console.log(JSON.stringify(results))
-
                 resolve(JSON.stringify(results));
-
             }, (tx, error) => reject(error));
         }))
 

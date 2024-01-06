@@ -1,8 +1,9 @@
-import { View, Text, ScrollView, StyleSheet, Button, SafeAreaView, Dimensions } from 'react-native'
+import { View, Text, ScrollView, StyleSheet, Button, SafeAreaView, Dimensions, TouchableOpacity } from 'react-native'
 import CustomSquareButton from '../components/buttons/CustomSquareButton';
 import AlarmClocksList from '../components/AlarmClocksList';
 import { React, useEffect, useState } from 'react'
 import { Database } from "../../api/Database";
+import FontAwesome5Icons from 'react-native-vector-icons/FontAwesome5';
 
 const List = ({ navigation }) => {
 
@@ -22,8 +23,6 @@ const List = ({ navigation }) => {
 
 
 
-    useEffect(() => console.log(alarms), [alarms])
-
     const deleteAlarm = (id) => {
         setAlarms(() => alarms.filter(alarm => alarm.id !== id));
         Database.remove(id);
@@ -37,7 +36,17 @@ const List = ({ navigation }) => {
 
             </ScrollView>
             <View style={theme.button} >
+                {/* <CustomSquareButton title={"Add alarm lock"} onPress={() => navigation.navigate('stopwatch')} /> */}
+             <View style={theme.timerstop}>
                 <CustomSquareButton title={"Add alarm clock"} onPress={() => navigation.navigate('creator')} />
+                   <TouchableOpacity onPress={() => navigation.navigate('timer')} style={theme.tat}>
+                   <FontAwesome5Icons  style={theme.text} name="hourglass" color={'#fff'} size={20} />
+
+                     </TouchableOpacity>
+                 <TouchableOpacity onPress={() => navigation.navigate('stopwatch')} style={theme.tat}>
+                 <FontAwesome5Icons  style={theme.text} name="stopwatch" color={'#fff'} size={20} />
+                 </TouchableOpacity>
+             </View>
             </View >
         </View>
     )
@@ -61,11 +70,43 @@ const theme = StyleSheet.create({
     button: { 
         position: 'absolute', 
         bottom: 70, 
-        left: Dimensions.get('window').width / 2 - 110 
+        bottom: 50,
+        left: Dimensions.get('window').width / 2 - 160 
     },
     colors: { 
         black: '#000', 
         white: 'white' 
+    },
+    tat:{
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 12,
+        paddingHorizontal: 32,
+        borderRadius: 4,
+        elevation: 3,
+        width: 80,
+        backgroundColor: '#83c5be',
+        margin: 5,
+    },
+    timerstop:{
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100%'
+    },
+    tatext:{
+        fontSize: 14,
+        lineHeight: 21,
+        fontWeight: 'bold',
+        letterSpacing: 0.25,
+        color: 'white',
+    },
+    text: {
+        fontSize: 16,
+        lineHeight: 21,
+        fontWeight: 'bold',
+        letterSpacing: 0.25,
+        color: 'white',
     },
 
 });

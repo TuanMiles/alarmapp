@@ -1,179 +1,84 @@
-import { View, Text, StyleSheet, ScrollView} from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import CustomSquareButton2 from '../components/buttons/CustomSquareButton2';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { Picker } from '@react-native-picker/picker';
 import { Database } from '../../api/Database';
 import { formatNumber } from '../../api/Utils';
+import ScrollPicker from "react-native-wheel-scrollview-picker";
 
 const AlarmCreator = ({ navigation }) => {
-    const [hour, setHour] = useState(new Date().getHours() % 12);
+    const hours = Array.from({ length: 24 }, (_, i) => i);
+    const minutes = Array.from({ length: 60 }, (_, i) => i);
+
+    const [hour, setHour] = useState(new Date().getHours());
     const [minute, setMinute] = useState(new Date().getMinutes());
-    const [isAM, setIsAM] = useState(new Date().getHours() < 12);
-
-    const [hoursArray, setHoursArray] = useState(Array.from({ length: 12 }, (_, i) => (new Date().getHours() + i) % 12));
-    const [minutesArray, setMinutesArray] = useState(Array.from({ length: 60 }, (_, i) => i));
-
-    useEffect(() => {
-        const currentHour = new Date().getHours() % 12;
-        const currentMinute = new Date().getMinutes();
-        const isAMNow = new Date().getHours() < 12;
-    
-        setHour(currentHour);
-        setMinute(currentMinute);
-        setIsAM(isAMNow);
-    
-        console.log(`Hour: ${currentHour}, Minute: ${currentMinute}, isAM: ${isAMNow}`);
-    }, []);
-
-    useEffect(() => {
-        const currentMinute = new Date().getMinutes();
-        const updatedMinutesArray = Array.from({ length: 60 }, (_, i) => (currentMinute + i) % 60);
-        setMinutesArray(updatedMinutesArray);
-    }, []);
-    const handleHourScroll = (event) => {
-        const { contentOffset } = event.nativeEvent;
-        const newHour = Math.floor((contentOffset.y / 60) % 12);
-        setHour(newHour < 0 ? 11 : newHour);
-    
-        console.log(`New Hour: ${newHour}`);
-    };
-    
-    const handleMinuteScroll = (event) => {
-        const { contentOffset } = event.nativeEvent;
-        const newMinute = Math.floor((contentOffset.y / 60) % 60);
-        setMinute(newMinute < 0 ? 59 : newMinute);
-    
-        console.log(`New Minute: ${newMinute}`);
-    };
-
-    const handleAMPM = () => {
-        setIsAM(!isAM);
-    };
+    const formatNumber = (number) => number.toString().padStart(2, '0');
 
     const addAlarm = () => {
-        // Tạo đối tượng alarm mới
-        const newAlarm = { id: 0, hour: hour, minute: minute, active: false };
-        
-        // Thêm đối tượng alarm vào cơ sở dữ liệu (giả sử hàm Database.add() nhận vào một đối tượng alarm)
-        Database.add(newAlarm);
-    
-        // Điều hướng ngược lại sau khi thêm alarm
+        const newAlarm = { id: 0, hour: hour, minute: minute, active: false }
         navigation.goBack();
+        Database.add(newAlarm.hour, newAlarm.minute, newAlarm.active ? 1 : 0)
+        console.log(`added a new alarm at ${newAlarm.hour}:${newAlarm.minute}`)
     };
+
+    const currentDate = new Date();
+    const currentHour = currentDate.getHours();
+    const currentMinute = currentDate.getMinutes();
+
+
     return (
-        <View style={styles.container}>
-            <View style={styles.clockFrame}>
-            <ScrollView
-                onScroll={handleHourScroll}
-                scrollEventThrottle={16}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.hourScrollContainer}
-            >
-                {hoursArray.map((hour, index) => (
-                    <Text key={index} style={styles.clockText}>
-                        {hour}
-                    </Text>
-                ))}
-            </ScrollView>
-
-            <Text style={styles.colonText}>:</Text>
-
-            <ScrollView
-                onScroll={handleMinuteScroll}
-                scrollEventThrottle={16}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.minuteScrollContainer}
-            >
-                {minutesArray.map((minute, index) => (
-                    <Text key={index} style={styles.clockText}>
-                        {minute < 10 ? `0${minute}` : minute}
-                    </Text>
-                ))}
-            </ScrollView>
-            </View>
-
-            <View style={styles.buttonsContainer}>
-            <View style={styles.ampmButtons}>
-                <CustomSquareButton2
-                    title={"AM"}
-                    onPress={() => setIsAM('AM')}
-                    btnstylesheet={{ backgroundColor: isAM === 'AM' ? '#83c5be' : '#fafafa' }}
-                    textstylesheet={{ color: isAM === 'AM' ? 'white' : '#00000060' }}
-                />
-                <CustomSquareButton2
-                    title={"PM"}
-                    onPress={() => setIsAM('PM')}
-                    btnstylesheet={{ backgroundColor: isAM === 'PM' ? '#83c5be' : '#fafafa' }}
-                    textstylesheet={{ color: isAM === 'PM' ? 'white' : '#00000060' }}
-                />
-            </View>
+        <View style={theme.container}>
+         <View style={theme.hourmin}>
+                   <Text style={theme.hmi}>Hour</Text>
+                   <Text style={theme.hmi}>Minute</Text>
+         </View>
+            <View style={theme.selectorRow}>
         
-            <View style={styles.buttons}>
-                <CustomSquareButton2 title={"Cancel"} onPress={() => navigation.goBack()} btnstylesheet={{ backgroundColor: '#fafafa' }} textstylesheet={{ color: '#00000060' }} />
-                <CustomSquareButton2 title={"Add new"} onPress={() => addAlarm()} btnstylesheet={{ backgroundColor: '#83c5be' }} textstylesheet={{ color: 'white' }} />
+                <ScrollPicker
+                    dataSource={hours}
+                    selectedIndex={currentHour}
+                    onValueChange={(itemValue) => setHour(itemValue)}
+                    wrapperHeight={180}
+                    wrapperBackground="#FFFFFF"
+                    itemHeight={60}
+                    highlightColor="#d8d8d8"
+                    highlightBorderWidth={2}
+                    style={theme.picker}
+                />
+
+                <ScrollPicker
+                    dataSource={minutes}
+                    selectedIndex={currentMinute}
+                    onValueChange={(itemValue) => setMinute(itemValue)}
+                    wrapperHeight={180}
+                    wrapperBackground="#FFFFFF"
+                    itemHeight={60}
+                    highlightColor="#d8d8d8"
+                    highlightBorderWidth={2}
+                    style={theme.picker}
+                />
             </View>
-        </View>
+
+            <View style={theme.buttons}>
+                <View style={theme.buttons}>
+                    <CustomSquareButton2 title={"Cancel"} onPress={() => navigation.goBack()} btnstylesheet={{ backgroundColor: '#fafafa' }} textstylesheet={{ color: '#00000060' }} />
+                    <CustomSquareButton2 title={"Add new"} onPress={() => addAlarm()} btnstylesheet={{ backgroundColor: '#83c5be' }} textstylesheet={{ color: 'white' }} />
+                </View>
+            </View>
         </View>
     );
 };
 
 export default AlarmCreator;
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#f0f2f5',
-    },
-    clockContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 20,
-    },
-    hourScrollContainer: {
-        flexGrow: 1,
-        alignItems: 'center',
-    },
-    minuteScrollContainer: {
-        flexGrow: 1,
-        alignItems: 'center',
-    },
-    clockText: {
-        fontSize: 50,
-        fontWeight: 'bold',
-        marginVertical: 10,
-    },
-    colonText: {
-        fontSize: 50,
-        marginHorizontal: 10,
-    },
-    buttons: { 
-        flexDirection: 'row', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        marginTop: 50,
-        marginBottom: 50, 
-        width: '100%'
-    },
-    ampmButtons: { 
-        flexDirection: 'row', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        marginTop: 10, 
-        width: '65%'
-    },
-    clockFrame: {
-        flexDirection: 'row',
-        width: 250,
-        height: 100,
-        overflow: 'hidden',
-        marginBottom: 20,
-    },
-    buttonsContainer: {
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginVertical: 20,
-    },
-    
+const theme = StyleSheet.create({
+    container: { flex: 1, backgroundColor: '#f0f2f5', justifyContent: 'center', alignItems: 'center' },
+    selectorRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
+    timeDisplay: { width: 150, alignItems: 'center' },
+    timeText: { fontSize: 48, color: '#42999b', fontWeight: 'bold' },
+    picker: { height: 40, borderWidth: 1, fontSize: 100, borderColor: '#42999b', alignItems: 'flex-start', borderRadius: 20}, // Adjust the style as needed
+    buttons: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 150, width: '100%' },
+    hourmin: {display: 'flex', color: '#42999b', width: 240, flexDirection: 'row', justifyContent: 'space-between', fontWeight: 'bold', marginBottom: 10},
+    hmi: {color: '#42999b', fontWeight: 'bold'}
+    // Additional styles
 });
