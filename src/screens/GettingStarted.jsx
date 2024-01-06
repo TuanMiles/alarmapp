@@ -5,8 +5,7 @@ const GettingStartedScreen = ({ navigation }) => {
     useEffect(() => {
         const timer = setTimeout(() => {
           navigation.replace('main');
-        }, 3000);    
-        // Clear timer khi component unmount để tránh memory leak
+        }, 5000);    
         return () => clearTimeout(timer);
       }, [navigation]);
     

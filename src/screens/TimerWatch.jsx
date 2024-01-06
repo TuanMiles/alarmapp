@@ -77,7 +77,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     width: 220,
-  }
+  },
+  record: {
+    color: "#fff",
+    fontSize: 20,
+    marginTop: 20,
+    marginBottom: 20
+  },
 
 });
 
@@ -107,6 +113,7 @@ const TimerWatch = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [selectedMinutes, setSelectedMinutes] = useState("0");
   const [selectedSeconds, setSelectedSeconds] = useState("5");
+  const [stoppedSec, setStoppedSec] = useState("0");
 
   let interval = null;
 
@@ -131,6 +138,7 @@ const TimerWatch = () => {
     interval = null;
     setRemainingSeconds(8);
     setIsRunning(false);
+    setStoppedSec(remainingSeconds);
   };
 
   const renderPickers = () => (
@@ -193,6 +201,7 @@ const TimerWatch = () => {
           <Text style={styles.buttonText}>Start</Text>
         </TouchableOpacity>
       )}
+      <Text style={styles.record}>Record: {stoppedSec} sec</Text>
     </View>
   );
 };
